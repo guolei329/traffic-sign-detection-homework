@@ -21,7 +21,6 @@ parser.add_argument('--outfile', type=str, default='gtsrb_kaggle.csv', metavar='
                     help="name of the output csv file")
 
 args = parser.parse_args()
-
 state_dict = torch.load(args.model)
 model = Net()
 model.load_state_dict(state_dict)
@@ -49,7 +48,7 @@ for f in tqdm(os.listdir(test_dir)):
         pred = output.data.max(1, keepdim=True)[1]
 
         file_id = f[0:5]
-        output_file.write("%s,%d\n" % (file_id, pred))
+        output_file.write("%s,%d\n" % (file_id, pred.numpy()))
 
 output_file.close()
 

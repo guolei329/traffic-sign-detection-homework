@@ -6,15 +6,17 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.autograd import Variable
+from tqdm import tqdm
 
+CUDA = True
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch GTSRB example')
 parser.add_argument('--data', type=str, default='data', metavar='D',
                     help="folder where data is located. train_data.zip and test_data.zip need to be found in the folder")
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
-parser.add_argument('--epochs', type=int, default=10, metavar='N',
-                    help='number of epochs to train (default: 10)')
+parser.add_argument('--epochs', type=int, default=100, metavar='N',
+                    help='number of epochs to train (default: 100)')
 parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                     help='learning rate (default: 0.01)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
@@ -45,13 +47,21 @@ val_loader = torch.utils.data.DataLoader(
 ### Neural Network and Optimizer
 # We define neural net in model.py so that it can be reused by the evaluate.py script
 from model import Net
-model = Net()
+
+if CUDA:
+    model = Net().cuda()
+else:
+    model = Net()
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 def train(epoch):
     model.train()
+    enumerate(train_loader)
+    print('enumeration good')
     for batch_idx, (data, target) in enumerate(train_loader):
+        if CUDA:
+            data, target = data.cuda(), target.cuda()
         data, target = Variable(data), Variable(target)
         optimizer.zero_grad()
         output = model(data)
@@ -69,6 +79,8 @@ def validation():
     validation_loss = 0
     correct = 0
     for data, target in val_loader:
+        if CUDA:
+            data, target = data.cuda(), target.cuda()
         data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
         validation_loss += F.nll_loss(output, target, size_average=False).data[0] # sum up batch loss
@@ -80,10 +92,10 @@ def validation():
         validation_loss, correct, len(val_loader.dataset),
         100. * correct / len(val_loader.dataset)))
 
-
-for epoch in range(1, args.epochs + 1):
-    train(epoch)
-    validation()
-    model_file = 'model_' + str(epoch) + '.pth'
-    torch.save(model.state_dict(), model_file)
-    print('\nSaved model to ' + model_file + '. You can run `python evaluate.py ' + model_file + '` to generate the Kaggle formatted csv file')
+if __name__ == "__main__":
+    for epoch in tqdm(range(1, args.epochs + 1)):
+        train(epoch)
+        validation()
+        model_file = 'model_' + str(epoch) + '.pth'
+        torch.save(model.state_dict(), model_file)
+        print('\nSaved model to ' + model_file + '. You can run `python evaluate.py ' + model_file + '` to generate the Kaggle formatted csv file')
