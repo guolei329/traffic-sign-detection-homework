@@ -35,6 +35,8 @@ train_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/train_images',
                          transform=data_transforms),
     batch_size=args.batch_size, shuffle=True, num_workers=1)
+
+# note the labels are the name of the dir.
 val_loader = torch.utils.data.DataLoader(
     datasets.ImageFolder(args.data + '/val_images',
                          transform=data_transforms),
@@ -53,6 +55,7 @@ def train(epoch):
         data, target = Variable(data), Variable(target)
         optimizer.zero_grad()
         output = model(data)
+        # The negative log likelihood loss. It is useful to train a classification problem with C classes.
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()

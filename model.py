@@ -14,10 +14,13 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(50, nclasses)
 
     def forward(self, x):
+        # relu is a typical way to introduce non-linearity
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        # drop some random activations in the conv2 layer
         x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
         x = x.view(-1, 500)
         x = F.relu(self.fc1(x))
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
+
         return F.log_softmax(x)
