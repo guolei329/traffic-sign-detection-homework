@@ -15,8 +15,8 @@ parser.add_argument('--data', type=str, default='data', metavar='D',
                     help="folder where data is located. train_data.zip and test_data.zip need to be found in the folder")
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
-parser.add_argument('--epochs', type=int, default=100, metavar='N',
-                    help='number of epochs to train (default: 100)')
+parser.add_argument('--epochs', type=int, default=30, metavar='N',
+                    help='number of epochs to train (default: 30)')
 parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                     help='learning rate (default: 0.01)')
 parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
@@ -47,18 +47,21 @@ val_loader = torch.utils.data.DataLoader(
 ### Neural Network and Optimizer
 # We define neural net in model.py so that it can be reused by the evaluate.py script
 from model import Net
+from model import VGG11
 
+# if CUDA:
+#     model = Net().cuda()
+# else:
+#     model = Net()
+
+model = VGG11()
 if CUDA:
-    model = Net().cuda()
-else:
-    model = Net()
+    model.cuda()
 
 optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 def train(epoch):
     model.train()
-    enumerate(train_loader)
-    print('enumeration good')
     for batch_idx, (data, target) in enumerate(train_loader):
         if CUDA:
             data, target = data.cuda(), target.cuda()
