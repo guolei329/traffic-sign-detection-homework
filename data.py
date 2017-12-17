@@ -21,6 +21,7 @@ def initialize_data(folder):
     if not os.path.exists(train_zip) or not os.path.exists(test_zip):
         raise(RuntimeError("Could not find " + train_zip + " and " + test_zip
               + ', please download them from https://www.kaggle.com/c/nyu-cv-fall-2017/data '))
+
     # extract train_data.zip to train_data
     train_folder = folder + '/train_images'
     if not os.path.isdir(train_folder):
@@ -28,6 +29,7 @@ def initialize_data(folder):
         zip_ref = zipfile.ZipFile(train_zip, 'r')
         zip_ref.extractall(folder)
         zip_ref.close()
+
     # extract test_data.zip to test_data
     test_folder = folder + '/test_images'
     if not os.path.isdir(test_folder):

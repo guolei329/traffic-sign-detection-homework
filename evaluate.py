@@ -11,6 +11,7 @@ import torchvision.datasets as datasets
 
 from data import initialize_data # data.py in the same folder
 from model import Net
+from model import VGG11
 
 parser = argparse.ArgumentParser(description='PyTorch GTSRB evaluation script')
 parser.add_argument('--data', type=str, default='data', metavar='D',
@@ -21,9 +22,9 @@ parser.add_argument('--outfile', type=str, default='gtsrb_kaggle.csv', metavar='
                     help="name of the output csv file")
 
 args = parser.parse_args()
-
 state_dict = torch.load(args.model)
-model = Net()
+# model = Net()
+model = VGG11()
 model.load_state_dict(state_dict)
 model.eval()
 
@@ -49,7 +50,7 @@ for f in tqdm(os.listdir(test_dir)):
         pred = output.data.max(1, keepdim=True)[1]
 
         file_id = f[0:5]
-        output_file.write("%s,%d\n" % (file_id, pred))
+        output_file.write("%s,%d\n" % (file_id, pred.numpy()))
 
 output_file.close()
 
